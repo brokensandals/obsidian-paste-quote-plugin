@@ -32,7 +32,10 @@ export function parseQuote(raw: string): Quote {
         result.authors = authors;
         
         if (citationParts.length >= 2) {
-          result.title = citationParts[1].trim();
+          // If there's a page number, citationParts[1] looks like "Title (p"; if there's not, it looks like "Title (Function)".
+          // (Right now I literally see "(Function)" every time I copy a quote. I assume this is a bug in the Kindle app and it's supposed to contain the publisher or something.)
+          // The following is meant to trim the unnecessary stuff off the end while still allowing titles with parentheses.
+          result.title = citationParts[1].replace(/\s*\([^(]*$/, '').trim();
         }
       }
       
