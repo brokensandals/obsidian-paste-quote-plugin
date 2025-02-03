@@ -49,3 +49,12 @@ export function parseQuote(raw: string): Quote {
 
   return result;
 }
+
+// Replaces double quote marks within a quotation with single quotes, so they won't be confused with the quote marks surrounding the quotation.
+// Ideally we'd replace single quote marks within the quotation too, to fit the pattern of single-double-single-... nesting, but that's more complicated, especially since we'd have to distinguish apostrophes too.
+export function replaceDoubleQuotes(original: string): string {
+  return original
+    .replace(/"/g, "'")
+    .replace(/“/g, "‘")
+    .replace(/”/g, "’");
+}

@@ -1,4 +1,4 @@
-import { parseQuote } from './quotes';
+import { parseQuote, replaceDoubleQuotes } from './quotes';
 
 describe('parseQuote', () => {
   it('should fall back to using the raw clipboard contents if it cannot parse the quote', () => {
@@ -66,5 +66,19 @@ describe('parseQuote', () => {
       authors: ['Body, Some'],
       title: 'An (Un-)Amazing Book'
     });
+  });
+});
+
+describe('replaceDoubleQuotes', () => {
+  it('should replace directional double quotes', () => {
+    const original = '“It’s one of those smart gels,” Ray said at last. “Smart gels?” “Head cheese. Cultured brain cells on a slab.';
+    const expected = "‘It’s one of those smart gels,’ Ray said at last. ‘Smart gels?’ ‘Head cheese. Cultured brain cells on a slab.";
+    expect(replaceDoubleQuotes(original)).toBe(expected);
+  });
+
+  it('should replace nondirectional double quotes', () => {
+    const original = '"Don\'t @ me"';
+    const expected = "'Don't @ me'";
+    expect(replaceDoubleQuotes(original)).toBe(expected);
   });
 });
