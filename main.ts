@@ -1,4 +1,5 @@
-import { App, Editor, MarkdownView, Modal, Notice, Plugin, PluginSettingTab, Setting } from 'obsidian';
+import { App, Editor, MarkdownView, Plugin, PluginSettingTab } from 'obsidian';
+import { parseQuote, Quote, replaceDoubleQuotes } from 'src/quotes';
 
 // Remember to rename these classes and interfaces!
 
@@ -16,19 +17,30 @@ export default class PasteQuotePlugin extends Plugin {
 	async onload() {
 		await this.loadSettings();
 
-		// This adds an editor command that can perform some operation on the current editor instance
 		this.addCommand({
 			id: 'paste-quote',
 			name: 'Paste quote',
-			editorCallback: (editor: Editor, view: MarkdownView) => {
-				console.log(editor.getSelection());
-				editor.replaceSelection('Sample Editor Command');
-			}
+			editorCallback: this.pasteQuote.bind(this),
 		});
 
-		// This adds a settings tab so the user can configure various aspects of the plugin
 		this.addSettingTab(new PasteQuoteSettingTab(this.app, this));
 	}
+
+	async pasteQuote(editor: Editor, view: MarkdownView) {
+		const clipboardText = await navigator.clipboard.readText();
+		const quote = parseQuote(clipboardText);
+
+		const cursorPosition = editor.getCursor();
+		const formattedQuote = this.formatQuote(quote.body, cursorPosition);
+
+		editor.replaceRange(formattedQuote, cursorPosition);
+	}
+
+	formatQuote(quote: string, cursorPosition: CodeMirror.Position) {
+    return cursorPosition.ch === 0 
+      ? `> ${quote}` 
+      : `“${replaceDoubleQuotes(quote)}”`;
+  }
 
 	onunload() {
 
