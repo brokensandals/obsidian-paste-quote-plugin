@@ -1,5 +1,5 @@
 import { Editor, MarkdownView, Plugin, TFile } from 'obsidian';
-import { CslReference, parseQuote, replaceDoubleQuotes, scoreRefMatches } from 'src/quotes';
+import { CslReference, parseQuote, Quote, replaceDoubleQuotes, scoreRefMatches } from 'src/quotes';
 
 export default class PasteQuotePlugin extends Plugin {
 	async onload() {
@@ -29,12 +29,12 @@ export default class PasteQuotePlugin extends Plugin {
       : `“${replaceDoubleQuotes(quote)}”`;
   }
 
-	citationForQuote(quote: Quote, file?: TFile): string {
+	citationForQuote(quote: Quote, file: TFile | null): string {
 		if (!(quote.title || quote.authors || quote.page)) {
 			return "";
 		}
 
-		const fileCache = this.app.metadataCache.getFileCache(file);
+		const fileCache = file == null ? null : this.app.metadataCache.getFileCache(file);
 		const refs = fileCache?.frontmatter?.references || [];
 		if (refs.length == 0) {
 			// TODO make this configurable
