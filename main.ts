@@ -1,5 +1,5 @@
 import { App, Editor, MarkdownView, Plugin, PluginSettingTab, TFile } from 'obsidian';
-import { parseQuote, replaceDoubleQuotes, scoreRefMatches } from 'src/quotes';
+import { CslReference, parseQuote, replaceDoubleQuotes, scoreRefMatches } from 'src/quotes';
 
 // Remember to rename these classes and interfaces!
 
@@ -48,7 +48,14 @@ export default class PasteQuotePlugin extends Plugin {
 			return "";
 		}
 
-		const id = this.citeIdForQuote(quote, file) || 'TODO';
+		const fileCache = this.app.metadataCache.getFileCache(file);
+		const refs = fileCache?.frontmatter?.references || [];
+		if (refs.length == 0) {
+			// TODO make this configurable
+			return ` (*${quote.title}*, p. ${quote.page})`;
+		}
+
+		const id = this.citeIdForQuote(quote, refs) || `TODO ${quote.title}`;
 		let citation = `[@${id}`;
 		if (quote.page) {
 			citation += ', p. ' + quote.page;
@@ -57,13 +64,7 @@ export default class PasteQuotePlugin extends Plugin {
 		return citation;
 	}
 
-	citeIdForQuote(quote: Quote, file?: TFile): string | null {
-		if (!file) {
-			return null;
-		}
-		
-		const fileCache = this.app.metadataCache.getFileCache(file);
-		const refs = fileCache?.frontmatter?.references || [];
+	citeIdForQuote(quote: Quote, refs: CslReference[]): string | null {
 		const results = scoreRefMatches(quote, refs);
 		if (results.length == 0) {
 			return null;
