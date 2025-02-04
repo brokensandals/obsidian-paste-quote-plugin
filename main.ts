@@ -1,29 +1,13 @@
-import { App, Editor, MarkdownView, Plugin, PluginSettingTab, TFile } from 'obsidian';
+import { Editor, MarkdownView, Plugin, TFile } from 'obsidian';
 import { CslReference, parseQuote, replaceDoubleQuotes, scoreRefMatches } from 'src/quotes';
 
-// Remember to rename these classes and interfaces!
-
-interface PasteQuotePluginSettings {
-	
-}
-
-const DEFAULT_SETTINGS: PasteQuotePluginSettings = {
-	
-}
-
 export default class PasteQuotePlugin extends Plugin {
-	settings: PasteQuotePluginSettings;
-
 	async onload() {
-		await this.loadSettings();
-
 		this.addCommand({
 			id: 'paste-quote',
 			name: 'Paste quote',
 			editorCallback: this.pasteQuote.bind(this),
 		});
-
-		this.addSettingTab(new PasteQuoteSettingTab(this.app, this));
 	}
 
 	async pasteQuote(editor: Editor, view: MarkdownView) {
@@ -75,28 +59,5 @@ export default class PasteQuotePlugin extends Plugin {
 
 	onunload() {
 
-	}
-
-	async loadSettings() {
-		this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData());
-	}
-
-	async saveSettings() {
-		await this.saveData(this.settings);
-	}
-}
-
-class PasteQuoteSettingTab extends PluginSettingTab {
-	plugin: PasteQuotePlugin;
-
-	constructor(app: App, plugin: PasteQuotePlugin) {
-		super(app, plugin);
-		this.plugin = plugin;
-	}
-
-	display(): void {
-		const {containerEl} = this;
-
-		containerEl.empty();
 	}
 }
