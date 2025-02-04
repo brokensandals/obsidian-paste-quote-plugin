@@ -1,9 +1,22 @@
+import * as fuzzysort from "fuzzysort";
+
 export interface Quote {
   raw: string,
   body: string,
   title?: string,
   authors?: string[],
   page?: string,
+}
+
+export interface CslAuthor {
+  family?: string,
+  given?: string,
+}
+
+export interface CslReference {
+  id: string,
+  title?: string,
+  author?: CslAuthor[],
 }
 
 export function parseQuote(raw: string): Quote {
@@ -57,4 +70,32 @@ export function replaceDoubleQuotes(original: string): string {
     .replace(/"/g, "'")
     .replace(/“/g, "‘")
     .replace(/”/g, "’");
+}
+
+export interface ReferenceMatchScore {
+  score: number,
+  id: string,
+}
+
+export function scoreRefMatches(quote: Quote, refs: CslReference[]): ReferenceMatchScore[] {
+  function refSearchStringForQuote(quote: Quote): string {
+    const authors = (quote.authors || []).map(s => s.toLowerCase().replace(/\.,/g, ''));
+    authors.sort();
+    return `${quote.title} ${authors.join(' ')}`.toLowerCase();
+  }
+  
+  function refSearchStringForRef(ref: CslReference): string {
+    function authorString(author: CslAuthor): string {
+      return `${author.family}, ${author.given}`.toLowerCase().replace(/\.,/g, '');
+    }
+
+    const authors = (ref.author || []).map(authorString);
+    authors.sort();
+    return `${ref.title} ${authors.join(' ')}`.toLowerCase();
+  }
+
+  const search = refSearchStringForQuote(quote);
+  const options = refs.map(ref => ({id: ref.id, searchString: refSearchStringForRef(ref)}));
+  const results = fuzzysort.go(search, options, {key: 'searchString'});
+  return results.map(result => ({score: result.score, id: result.obj.id}));
 }
