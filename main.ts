@@ -17,8 +17,10 @@ export default class PasteQuotePlugin extends Plugin {
 		const cursorPosition = editor.getCursor();
 		const formattedQuote = this.formatQuote(quote.body, cursorPosition);
 		const citation = this.citationForQuote(quote, view.file);
+		const insert = `${formattedQuote}${citation}`;
 
-		editor.replaceRange(`${formattedQuote}${citation}`, cursorPosition);
+		editor.replaceRange(insert, cursorPosition);
+		editor.setCursor(editor.offsetToPos(editor.posToOffset(cursorPosition) + insert.length));
 	}
 
 	formatQuote(quote: string, cursorPosition: CodeMirror.Position) {
