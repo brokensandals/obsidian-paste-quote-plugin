@@ -1,5 +1,5 @@
-import { App, Editor, MarkdownView, Plugin, PluginSettingTab } from 'obsidian';
-import { parseQuote, Quote, replaceDoubleQuotes } from 'src/quotes';
+import { App, Editor, MarkdownView, Plugin, PluginSettingTab, TFile } from 'obsidian';
+import { parseQuote, replaceDoubleQuotes, scoreRefMatches } from 'src/quotes';
 
 // Remember to rename these classes and interfaces!
 
@@ -32,8 +32,9 @@ export default class PasteQuotePlugin extends Plugin {
 
 		const cursorPosition = editor.getCursor();
 		const formattedQuote = this.formatQuote(quote.body, cursorPosition);
+		const citation = this.citationForQuote(quote, view.file);
 
-		editor.replaceRange(formattedQuote, cursorPosition);
+		editor.replaceRange(`${formattedQuote}${citation}`, cursorPosition);
 	}
 
 	formatQuote(quote: string, cursorPosition: CodeMirror.Position) {
@@ -41,6 +42,35 @@ export default class PasteQuotePlugin extends Plugin {
       ? `> ${quote}` 
       : `“${replaceDoubleQuotes(quote)}”`;
   }
+
+	citationForQuote(quote: Quote, file?: TFile): string {
+		if (!(quote.title || quote.authors || quote.page)) {
+			return "";
+		}
+
+		const id = this.citeIdForQuote(quote, file) || 'TODO';
+		let citation = `[@${id}`;
+		if (quote.page) {
+			citation += ', p. ' + quote.page;
+		}
+		citation += ']';
+		return citation;
+	}
+
+	citeIdForQuote(quote: Quote, file?: TFile): string | null {
+		if (!file) {
+			return null;
+		}
+		
+		const fileCache = this.app.metadataCache.getFileCache(file);
+		const refs = fileCache?.frontmatter?.references || [];
+		const results = scoreRefMatches(quote, refs);
+		if (results.length == 0) {
+			return null;
+		}
+		
+		return results[0].id;
+	}
 
 	onunload() {
 
