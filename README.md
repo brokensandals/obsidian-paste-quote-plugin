@@ -38,10 +38,8 @@ The `Paste quote` command will change the citation format when pasting this. The
 
 ![A sample document after pasting, which includes the quote and a citation in the format (*The War of Art*, p. 40-41)](docs/cite-no-refs-post.png)
 
-If your document _does_ have a references section in its frontmatter, then the plugin will try to find the correct reference for the quote based on the title and authors, and generate a Pandoc-style citation using the corresponding `id`. Example:
+If your document _does_ have a references section in its frontmatter, then the plugin will try to find the correct reference for the quote based on the title, and generate a Pandoc-style citation using the corresponding `id`. Example:
 
 ![A sample document containing a references section with a reference with id "pressfield2002"](docs/cite-refs-pre.png)
 
 ![A sample document after pasting, which includes the quote and a citation in the format \[@pressfield2002, p. 40-41\]](docs/cite-refs-post.png)
-
-Note: the match between the title/authors on the clipboard and the title/authors of the reference entry doesn't have to be exact. Since the plugin uses fuzzy matching, it is possible for it to choose the wrong reference.

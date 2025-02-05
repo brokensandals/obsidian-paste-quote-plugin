@@ -1,5 +1,5 @@
 import { Editor, MarkdownView, Plugin, TFile } from 'obsidian';
-import { CslReference, parseQuote, Quote, replaceDoubleQuotes, scoreRefMatches } from 'src/quotes';
+import { parseQuote, Quote, replaceDoubleQuotes, guessCiteId } from 'src/quotes';
 
 export default class PasteQuotePlugin extends Plugin {
 	async onload() {
@@ -30,33 +30,34 @@ export default class PasteQuotePlugin extends Plugin {
   }
 
 	citationForQuote(quote: Quote, file: TFile | null): string {
-		if (!(quote.title || quote.authors || quote.page)) {
+		if (!(quote.title || quote.page)) {
 			return "";
+		}
+
+		if (!quote.title) {
+			// TODO make this configurable
+			return `(p. ${quote.page})`;
 		}
 
 		const fileCache = file == null ? null : this.app.metadataCache.getFileCache(file);
 		const refs = fileCache?.frontmatter?.references || [];
 		if (refs.length == 0) {
 			// TODO make this configurable
-			return ` (*${quote.title}*, p. ${quote.page})`;
+			let citation = ` (*${quote.title}*`;
+			if (quote.page) {
+				citation += `, p. ${quote.page}`;
+			}
+			citation += ')';
+			return citation;
 		}
 
-		const id = this.citeIdForQuote(quote, refs) || `TODO ${quote.title}`;
+		const id = guessCiteId(quote.title, refs) || `TODO ${quote.title}`;
 		let citation = `[@${id}`;
 		if (quote.page) {
 			citation += ', p. ' + quote.page;
 		}
 		citation += ']';
 		return citation;
-	}
-
-	citeIdForQuote(quote: Quote, refs: CslReference[]): string | null {
-		const results = scoreRefMatches(quote, refs);
-		if (results.length == 0) {
-			return null;
-		}
-		
-		return results[0].id;
 	}
 
 	onunload() {
