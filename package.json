@@ -1,6 +1,6 @@
 {
 	"name": "obsidian-paste-quote-plugin",
-	"version": "1.1.0",
+	"version": "1.1.1",
 	"description": "Obsidian plugin that helps with formatting and generating citations when pasting quotes from the clipboard.",
 	"main": "main.js",
 	"scripts": {
