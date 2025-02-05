@@ -2,7 +2,11 @@
 
 This is a small [Obsidian](https://obsidian.md/) plugin to help with formatting and citing quotations when pasting them from the clipboard. Currently, citation support only applies to quotes pasted from the Kindle app, and is focused on generating [Pandoc-style citations](https://pandoc.org/chunkedhtml-demo/8.20-citation-syntax.html).
 
-## Formatting
+The plugin also contians a command to help paste references from e.g. Zotero into the `references` section of the note's front matter.
+
+## Paste Quote command
+
+### Formatting
 
 Suppose you have this text on the clipboard:
 
@@ -22,7 +26,7 @@ But if the cursor is in the middle of a line, then quotation marks will be added
 
 ![A sample document after pasting, where the quote has been surrounded by quotation marks and the double quotes within it have been replaced with single quotes](docs/inline-post.png)
 
-## Citations
+### Citations
 
 If you copy text from the Kindle app, you'll end up with something like this on your clipboard:
 
@@ -43,3 +47,25 @@ If your document _does_ have a references section in its frontmatter, then the p
 ![A sample document containing a references section with a reference with id "pressfield2002"](docs/cite-refs-pre.png)
 
 ![A sample document after pasting, which includes the quote and a citation in the format \[@pressfield2002, p. 40-41\]](docs/cite-refs-post.png)
+
+## Paste CSL YAML command
+
+Suppose you use [Zotero](https://www.zotero.org/) and [the Better BibTeX](https://retorque.re/zotero-better-bibtex/) plugin, and you select an entry there and use 'Copy as Better CSL YAML'. Then you'll have something like this on your clipboard:
+
+```
+---
+references:
+- id: pressfield2002
+  author:
+    - family: Pressfield
+      given: Steven
+  citation-key: pressfield2002
+  issued:
+    - year: 2002
+  publisher: Rugged Land, LLC
+  title: The War of Art
+  type: book
+...
+```
+
+Running the `Paste CSL YAML` command will add the references from the clipboard into your note's front matter. The advantage over just pasting it directly into the front matter yourself is that if your note _already_ has a `references` section in its front matter, the command will add the new references onto the existing list, and will warn you if there are any duplicate IDs.
