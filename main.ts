@@ -1,5 +1,5 @@
-import { Editor, MarkdownView, Plugin, TFile, parseYaml, Notice } from 'obsidian';
-import { parseQuote, Quote, replaceDoubleQuotes, guessCiteId, CslReference } from 'src/quotes';
+import { Editor, MarkdownView, Plugin, TFile, parseYaml, Notice, FuzzySuggestModal, App, FuzzyMatch } from 'obsidian';
+import { parseQuote, Quote, replaceDoubleQuotes, guessCiteId, CslReference, cslReferenceSummary } from 'src/quotes';
 
 export default class PasteQuotePlugin extends Plugin {
 	async onload() {
@@ -13,6 +13,12 @@ export default class PasteQuotePlugin extends Plugin {
 			id: 'paste-csl-yaml',
 			name: 'Paste CSL YAML',
 			editorCallback: this.pasteCslYaml.bind(this),
+		});
+
+		this.addCommand({
+			id: 'cite-reference',
+			name: 'Cite Reference',
+			editorCallback: this.citeReference.bind(this),
 		});
 	}
 
@@ -123,7 +129,59 @@ export default class PasteQuotePlugin extends Plugin {
 		});
 	}
 
+	async citeReference(editor: Editor, view: MarkdownView) {
+		if (!view.file) {
+			return;
+		}
+
+		const fileCache = this.app.metadataCache.getFileCache(view.file);
+		const references = fileCache?.frontmatter?.references || [];
+
+		if (!references || references.length === 0) {
+			new Notice('Cite Reference failed: no references found in front matter');
+			return;
+		}
+
+		const modal = new ReferenceSuggestModal(this.app, references, (citeId) => {
+			const citation = `[@${citeId}]`;
+			const cursorPosition = editor.getCursor();
+			editor.replaceRange(citation, cursorPosition);
+			// move cursor to just before the closing bracket
+			editor.setCursor(editor.offsetToPos(editor.posToOffset(cursorPosition) + citation.length - 1));
+		});
+
+		modal.open();
+	}
+
 	onunload() {
 
+	}
+}
+
+interface SearchableReference {
+	id: string,
+	text: string,
+}
+
+class ReferenceSuggestModal extends FuzzySuggestModal<SearchableReference> {
+	private references: CslReference[];
+	private onChooseReference: (id: string) => void;
+
+	constructor(app: App, references: CslReference[], onChooseReference: (id: string) => void) {
+		super(app);
+		this.references = references;
+		this.onChooseReference = onChooseReference;
+	}
+
+	getItemText(item: SearchableReference): string {
+		return item.text;
+	}
+
+	getItems(): SearchableReference[] {
+		return this.references.map(r => ({id: r.id, text: cslReferenceSummary(r)}));
+	}
+
+	onChooseItem(item: SearchableReference, evt: MouseEvent | KeyboardEvent): void {
+		this.onChooseReference(item.id);
 	}
 }

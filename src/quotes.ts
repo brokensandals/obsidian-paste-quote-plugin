@@ -15,6 +15,12 @@ export interface CslReference {
   id: string,
   title?: string,
   author?: CslAuthor[],
+  editor?: CslAuthor[],
+  issued?: CslDate[],
+}
+
+export interface CslDate {
+  year?: number,
 }
 
 export function parseQuote(raw: string): Quote {
@@ -77,4 +83,13 @@ function searchableTitle(title: string): string {
 export function guessCiteId(title: string, refs: CslReference[]): string | null {
   const st = searchableTitle(title);
   return refs.find((ref) => searchableTitle(ref.title || "") === st)?.id || null;
+}
+
+export function cslReferenceSummary(ref: CslReference): string {
+  let authors = [...(ref.editor || []), ...(ref.author || [])];
+  authors = authors.slice(0, 4);
+  let authorString = authors.map(a => a.family || a.given).join(' ');
+  let dateString = (ref.issued && ref.issued.length > 0 && ref.issued[0].year) ? ref.issued[0].year : '';
+  let titleString = ref.title || '';
+  return [authorString, dateString, titleString].join(' ');
 }
