@@ -2,7 +2,7 @@
 
 This is a small [Obsidian](https://obsidian.md/) plugin to help with formatting and citing quotations when pasting them from the clipboard. Currently, citation support only applies to quotes pasted from the Kindle app, and is focused on generating [Pandoc-style citations](https://pandoc.org/chunkedhtml-demo/8.20-citation-syntax.html).
 
-The plugin also contians a command to help paste references from e.g. Zotero into the `references` section of the note's front matter.
+The plugin also contains a command to help paste references from e.g. Zotero into the `references` section of the note's front matter.
 
 ## Paste Quote command
 
