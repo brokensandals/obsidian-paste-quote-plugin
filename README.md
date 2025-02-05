@@ -2,7 +2,7 @@
 
 This is a small [Obsidian](https://obsidian.md/) plugin to help with formatting and citing quotations when pasting them from the clipboard. Currently, citation support only applies to quotes pasted from the Kindle app, and is focused on generating [Pandoc-style citations](https://pandoc.org/chunkedhtml-demo/8.20-citation-syntax.html).
 
-The plugin also contains a command to help paste references from e.g. Zotero into the `references` section of the note's front matter.
+The plugin also contains a command to help paste references from e.g. Zotero into the `references` section of the note's front matter, and a command to insert a Pandoc-style citation for an item from the references section.
 
 ## Paste Quote command
 
@@ -69,3 +69,11 @@ references:
 ```
 
 Running the `Paste CSL YAML` command will add the references from the clipboard into your note's front matter. The advantage over just pasting it directly into the front matter yourself is that if your note _already_ has a `references` section in its front matter, the command will add the new references onto the existing list, and will warn you if there are any duplicate IDs.
+
+## Cite Reference command
+
+If you just want to insert a Pandoc-style citation to one of your references, without pasting a quote, you can use the `Cite Reference` command. This will open a fuzzy-finder for choosing the reference, then add the citation for the chosen reference, as shown below.
+
+![The fuzzy finder for the Cite Reference command, showing the two references that appear in the document's front matter](docs/cite-ref-pre.png)
+
+![The document after the Cite Reference command inserted a citation in the format \[@copp2011a\]](docs/cite-ref-post.png)
