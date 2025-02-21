@@ -17,7 +17,7 @@ export default class PasteQuotePlugin extends Plugin {
 
 		this.addCommand({
 			id: 'cite-reference',
-			name: 'Cite Reference',
+			name: 'Cite reference',
 			editorCallback: this.citeReference.bind(this),
 		});
 	}
